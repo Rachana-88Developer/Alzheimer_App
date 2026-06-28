@@ -1,0 +1,37 @@
+stages:
+  - test
+  - build
+
+# ---- Backend: install deps, import-check, train model smoke test ----
+backend-test:
+  stage: test
+  image: python:3.11-slim
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends build-essential libgomp1 && rm -rf /var/lib/apt/lists/*
+    - cd backend
+    - pip install --no-cache-dir -r requirements.txt
+  script:
+    # Verify the app imports and the ML pipeline trains end-to-end
+    - python -c "import app.main"
+    - python -m app.ml.train
+    - python -c "from app.ml.predict import predict; from app.ml.features import FEATURE_NAMES; print(predict({n: 0.0 for n in FEATURE_NAMES})[0])"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+# ---- Frontend: install and production build ----
+frontend-build:
+  stage: build
+  image: node:20-alpine
+  before_script:
+    - cd frontend
+    - npm install
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 week
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
