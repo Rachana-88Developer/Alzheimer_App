@@ -4,6 +4,7 @@ Generates a clinically-plausible synthetic dataset and trains a classifier
 for Alzheimer's staging (normal -> mci -> mild -> moderate -> severe).
 
 Model choice is selectable via MODEL_TYPE: random_forest | xgboost | lightgbm.
+If the optional library is missing, it safely falls back to RandomForest.
 The artifact (model + metadata) is saved to ml/artifacts/model.pkl.
 
 Run:  python -m app.ml.train
@@ -49,22 +50,39 @@ def _generate_dataset(n: int = 4000, seed: int = 42):
     return np.array(X, dtype=float), np.array(y, dtype=int)
 
 
-def _build_model():
-    if MODEL_TYPE == "xgboost":
-        from xgboost import XGBClassifier
-        return XGBClassifier(
-            n_estimators=300, max_depth=5, learning_rate=0.1,
-            subsample=0.9, colsample_bytree=0.9,
-            objective="multi:softprob", num_class=len(STAGES),
-            eval_metric="mlogloss", tree_method="hist")
-    if MODEL_TYPE == "lightgbm":
-        from lightgbm import LGBMClassifier
-        return LGBMClassifier(
-            n_estimators=300, max_depth=-1, learning_rate=0.05,
-            num_leaves=31, subsample=0.9, colsample_bytree=0.9)
+def _random_forest():
     from sklearn.ensemble import RandomForestClassifier
     return RandomForestClassifier(
         n_estimators=300, max_depth=None, n_jobs=-1, random_state=42)
+
+
+def _build_model():
+    """Build the configured model.
+
+    Falls back to RandomForest if the optional library (xgboost/lightgbm)
+    is not installed, so the app runs with the lighter local requirements.
+    """
+    if MODEL_TYPE == "xgboost":
+        try:
+            from xgboost import XGBClassifier
+            return XGBClassifier(
+                n_estimators=300, max_depth=5, learning_rate=0.1,
+                subsample=0.9, colsample_bytree=0.9,
+                objective="multi:softprob", num_class=len(STAGES),
+                eval_metric="mlogloss", tree_method="hist")
+        except ImportError:
+            print("xgboost not installed; falling back to RandomForest.")
+            return _random_forest()
+    if MODEL_TYPE == "lightgbm":
+        try:
+            from lightgbm import LGBMClassifier
+            return LGBMClassifier(
+                n_estimators=300, max_depth=-1, learning_rate=0.05,
+                num_leaves=31, subsample=0.9, colsample_bytree=0.9)
+        except ImportError:
+            print("lightgbm not installed; falling back to RandomForest.")
+            return _random_forest()
+    return _random_forest()
 
 
 def train(save: bool = True):
