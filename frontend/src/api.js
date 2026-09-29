@@ -37,8 +37,13 @@ export async function apiPost(path, data) {
   return res.json()
 }
 
+export async function fetchPatients() {
+  return apiGet('/api/patients')
+}
+
 export function reportUrl(assessmentId) {
   return `${BASE}/api/assessments/${assessmentId}/report`
 }
 
 export { BASE }
+

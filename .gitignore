@@ -9,6 +9,8 @@ env/
 .mypy_cache/
 
 # ML artifacts
+backend/app/ml/artifacts/*.pkl
+backend/app/ml/artifacts/*.joblib
 backend/ml/artifacts/*.pkl
 backend/ml/artifacts/*.joblib
 
@@ -29,3 +31,4 @@ dist/
 
 # DB
 *.sqlite3
+*.db
