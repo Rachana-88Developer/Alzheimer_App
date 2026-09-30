@@ -40,12 +40,33 @@ class Patient(Base):
     created_at = Column(DateTime(timezone=True), default=_now)
 
     assessments = relationship("Assessment", back_populates="patient", cascade="all, delete-orphan")
+    mri_scans = relationship("MRIScan", back_populates="patient", cascade="all, delete-orphan")
+
+
+class MRIScan(Base):
+    __tablename__ = "mri_scans"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
+    filename = Column(String(256), nullable=False)
+    file_path = Column(String(512), nullable=False)
+    file_format = Column(String(32), default="PNG")
+    predicted_stage = Column(String(64), default="")
+    confidence_score = Column(Float, default=0.0)
+    stage_probabilities = Column(JSON, default=dict)
+    heatmap_path = Column(String(512), default="")
+    heatmap_url = Column(String(512), default="")
+    original_url = Column(String(512), default="")
+    uploaded_at = Column(DateTime(timezone=True), default=_now)
+
+    patient = relationship("Patient", back_populates="mri_scans")
+    assessments = relationship("Assessment", back_populates="mri_scan")
 
 
 class Assessment(Base):
     __tablename__ = "assessments"
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
+    mri_scan_id = Column(Integer, ForeignKey("mri_scans.id"), nullable=True, index=True)
     created_by = Column(String(64), default="")
     created_at = Column(DateTime(timezone=True), default=_now)
 
@@ -65,5 +86,8 @@ class Assessment(Base):
     stage_probabilities = Column(JSON, default=dict)
     feature_importance = Column(JSON, default=dict)
     recommendations = Column(JSON, default=list)
+    mri_heatmap_url = Column(String(512), default="")
 
     patient = relationship("Patient", back_populates="assessments")
+    mri_scan = relationship("MRIScan", back_populates="assessments")
+

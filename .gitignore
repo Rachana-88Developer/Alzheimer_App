@@ -32,3 +32,8 @@ dist/
 # DB
 *.sqlite3
 *.db
+
+# Generated static images
+backend/app/static/heatmaps/
+backend/app/static/samples/
+

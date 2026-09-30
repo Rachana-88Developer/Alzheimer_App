@@ -48,6 +48,21 @@ class PatientOut(PatientCreate):
         from_attributes = True
 
 
+class MRIScanOut(BaseModel):
+    id: int
+    patient_id: int
+    filename: str
+    file_format: str
+    predicted_stage: str
+    confidence_score: float
+    stage_probabilities: Dict[str, float]
+    heatmap_url: str
+    original_url: str
+
+    class Config:
+        from_attributes = True
+
+
 class AssessmentCreate(BaseModel):
     mmse_score: float = Field(ge=0, le=30)
     moca_score: float = Field(ge=0, le=30)
@@ -58,11 +73,13 @@ class AssessmentCreate(BaseModel):
     executive_score: float = Field(ge=0, le=100)
     mri_atrophy: float = Field(ge=0, le=1, default=0)
     voice_biomarker: float = Field(ge=0, le=1, default=0)
+    mri_scan_id: Optional[int] = None
 
 
 class AssessmentOut(BaseModel):
     id: int
     patient_id: int
+    mri_scan_id: Optional[int] = None
     created_by: str
     mmse_score: float
     moca_score: float
@@ -77,6 +94,8 @@ class AssessmentOut(BaseModel):
     stage_probabilities: Dict[str, float]
     feature_importance: Dict[str, float]
     recommendations: List[str]
+    mri_heatmap_url: Optional[str] = ""
 
     class Config:
         from_attributes = True
+

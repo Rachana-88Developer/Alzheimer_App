@@ -72,11 +72,11 @@ export default function Dashboard() {
             <p>View, manage, and register new patients</p>
           </div>
         </Link>
-        <Link to="/patients" className="action-tile">
+        <Link to="/mri" className="action-tile">
           <div className="action-icon">🧠</div>
           <div className="action-info">
-            <h4>New Assessment & MRI</h4>
-            <p>Submit cognitive tests & upload MRI scans</p>
+            <h4>MRI Brain Scan Staging</h4>
+            <p>Upload scans & run PyTorch Deep Learning Staging</p>
           </div>
         </Link>
         <Link to="/records" className="action-tile">

@@ -1,11 +1,11 @@
-"""PDF clinical report generator using ReportLab."""
+import os
 import io
 from datetime import datetime, timezone
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.lib import colors
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
@@ -77,6 +77,16 @@ def generate_report(patient, assessment) -> bytes:
         elems.append(pt)
         elems.append(Spacer(1, 0.5 * cm))
 
+    # Embed SHAP brain heatmap if available
+    if getattr(assessment, "mri_heatmap_url", None):
+        rel_path = assessment.mri_heatmap_url.lstrip("/")
+        abs_heatmap_path = os.path.join(os.path.dirname(__file__), rel_path)
+        if os.path.exists(abs_heatmap_path):
+            elems.append(Paragraph("Brain MRI Scan & SHAP Visual Heatmap", styles["Heading2"]))
+            elems.append(Spacer(1, 0.2 * cm))
+            elems.append(RLImage(abs_heatmap_path, width=8*cm, height=8*cm))
+            elems.append(Spacer(1, 0.5 * cm))
+
     elems.append(Paragraph("Recommendations", styles["Heading2"]))
     for r in (assessment.recommendations or []):
         elems.append(Paragraph(f"- {r}", styles["Normal"]))
@@ -88,3 +98,4 @@ def generate_report(patient, assessment) -> bytes:
 
     doc.build(elems)
     return buf.getvalue()
+

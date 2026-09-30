@@ -68,7 +68,8 @@ CREATE TABLE mri_scans (
 
 ## 4. Acceptance & Verification Criteria
 
-- [ ] Uploading DICOM, PNG, and JPG files returns valid preprocessed image arrays.
-- [ ] Preprocessing pipeline resizes and normalizes images correctly without distortion.
-- [ ] Deep Learning inference returns 4-class stage probabilities and confidence percentage.
-- [ ] MRI preview renders cleanly on the frontend.
+- [x] Uploading DICOM, PNG, and JPG files returns valid preprocessed image arrays.
+- [x] Preprocessing pipeline resizes and normalizes images correctly without distortion.
+- [x] Deep Learning PyTorch inference returns 4-class stage probabilities matching Augmented Alzheimer MRI Dataset.
+- [x] Grad-CAM & SHAP visual heatmaps render side-by-side with original MRI images cleanly on the frontend.
+

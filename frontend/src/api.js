@@ -41,9 +41,52 @@ export async function fetchPatients() {
   return apiGet('/api/patients')
 }
 
+export async function fetchSampleMRIs() {
+  return apiGet('/api/mri/samples')
+}
+
+export async function fetchPatientMRIs(patientId) {
+  return apiGet(`/api/mri/patient/${patientId}`)
+}
+
+export async function uploadMRI(patientId, file) {
+  const formData = new FormData()
+  formData.append('patient_id', patientId)
+  formData.append('file', file)
+
+  const res = await fetch(`${BASE}/api/mri/upload`, {
+    method: 'POST',
+    headers: { ...authHeaders() },
+    body: formData,
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'MRI upload failed')
+  }
+  return res.json()
+}
+
+export async function analyzeSampleMRI(patientId, sampleKey) {
+  const formData = new FormData()
+  formData.append('patient_id', patientId)
+  formData.append('sample_key', sampleKey)
+
+  const res = await fetch(`${BASE}/api/mri/analyze-sample`, {
+    method: 'POST',
+    headers: { ...authHeaders() },
+    body: formData,
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Sample MRI analysis failed')
+  }
+  return res.json()
+}
+
 export function reportUrl(assessmentId) {
   return `${BASE}/api/assessments/${assessmentId}/report`
 }
 
 export { BASE }
+
 

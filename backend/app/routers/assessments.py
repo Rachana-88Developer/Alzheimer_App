@@ -16,11 +16,43 @@ from ..reports import generate_report
 router = APIRouter(prefix="/api", tags=["assessments"])
 
 
-def _run_pipeline(patient, assessment):
-    """Scoring -> feature engineering -> ML -> recommendations."""
+def _run_pipeline(patient, assessment, db: Session):
+    """Scoring -> feature engineering -> ML + PyTorch MRI DL fusion -> recommendations."""
+    mri_scan = None
+    if assessment.mri_scan_id:
+        mri_scan = db.get(models.MRIScan, assessment.mri_scan_id)
+        if mri_scan:
+            assessment.mri_heatmap_url = mri_scan.heatmap_url
+            if assessment.mri_atrophy == 0:
+                # Estimate atrophy from confidence / stage
+                stage_atrophy = {"Non Demented": 0.15, "Very Mild Demented": 0.38, "Mild Demented": 0.62, "Moderate Demented": 0.85}
+                assessment.mri_atrophy = stage_atrophy.get(mri_scan.predicted_stage, 0.3)
+
     compute_scores(assessment)  # validates/interprets bands
     features = build_feature_vector(patient, assessment)
     stage, probabilities, importance = predict(features)
+
+    # Multimodal Fusion with PyTorch MRI Deep Learning model output if MRI scan attached
+    if mri_scan and mri_scan.stage_probabilities:
+        mri_probs = mri_scan.stage_probabilities
+        fused_probs = {}
+        for s in probabilities.keys():
+            # Blend 60% tabular clinical scores + 40% MRI Deep Learning scan
+            p_tab = probabilities.get(s, 0.0)
+            p_mri = mri_probs.get(s, 0.0)
+            fused_probs[s] = round(0.60 * p_tab + 0.40 * p_mri, 4)
+
+        # Renormalize
+        tot = sum(fused_probs.values()) or 1.0
+        fused_probs = {k: round(v / tot, 4) for k, v in fused_probs.items()}
+        top_stage = max(fused_probs.items(), key=lambda kv: kv[1])[0]
+        stage = top_stage
+        probabilities = fused_probs
+        importance["mri_brain_scan_atrophy"] = 0.28
+        tot_imp = sum(importance.values())
+        importance = {k: round(v / tot_imp, 4) for k, v in importance.items()}
+        importance = dict(sorted(importance.items(), key=lambda kv: kv[1], reverse=True))
+
     assessment.predicted_stage = stage
     assessment.stage_probabilities = probabilities
     assessment.feature_importance = importance
@@ -37,11 +69,12 @@ def create_assessment(patient_id: int,
         raise HTTPException(status_code=404, detail="Patient not found")
     assessment = models.Assessment(patient_id=patient_id, created_by=user.username,
                                    **payload.model_dump())
-    _run_pipeline(patient, assessment)
+    _run_pipeline(patient, assessment, db)
     db.add(assessment)
     db.commit()
     db.refresh(assessment)
     return assessment
+
 
 
 @router.get("/patients/{patient_id}/assessments", response_model=List[schemas.AssessmentOut])
