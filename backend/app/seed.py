@@ -22,4 +22,29 @@ def seed_users(db: Session) -> None:
                 hashed_password=hash_password(password),
                 role=role,
             ))
+    
+    # Seed default demonstration patient if DB empty
+    patient_exists = db.query(models.Patient).first()
+    if not patient_exists:
+        p1 = models.Patient(
+            full_name="John Doe",
+            age=72,
+            gender="Male",
+            education_years=14,
+            medical_history="Hypertension, Mild memory complaints",
+            family_history="Maternal grandfather diagnosed with Alzheimer's",
+            medications="Lisinopril 10mg"
+        )
+        p2 = models.Patient(
+            full_name="Eleanor Vance",
+            age=68,
+            gender="Female",
+            education_years=16,
+            medical_history="Type 2 Diabetes",
+            family_history="No family history of dementia",
+            medications="Metformin 500mg"
+        )
+        db.add_all([p1, p2])
+
     db.commit()
+
