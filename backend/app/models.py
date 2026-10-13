@@ -85,6 +85,7 @@ class Assessment(Base):
     predicted_stage = Column(String(32), default="")
     stage_probabilities = Column(JSON, default=dict)
     feature_importance = Column(JSON, default=dict)
+    explainable_ai = Column(JSON, default=dict)
     recommendations = Column(JSON, default=list)
     mri_heatmap_url = Column(String(512), default="")
 

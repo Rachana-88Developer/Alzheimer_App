@@ -82,7 +82,8 @@
 
 ## 5. Acceptance & Verification Criteria
 
-- [ ] Feature engineering creates a clean, unified multimodal vector.
-- [ ] SHAP feature attributions calculate accurately and sum to 100%.
-- [ ] SHAP heatmap overlay generates clearly over brain MRI images.
-- [ ] UI renders the side-by-side MRI heatmap viewer and feature contribution chart.
+- [x] Feature engineering creates a clean, unified multimodal vector.
+- [x] SHAP feature attributions calculate accurately and sum to 100%.
+- [x] SHAP heatmap overlay generates clearly over brain MRI images.
+- [x] UI renders the side-by-side MRI heatmap viewer and feature contribution chart.
+

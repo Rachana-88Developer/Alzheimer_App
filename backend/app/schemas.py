@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -93,9 +93,23 @@ class AssessmentOut(BaseModel):
     predicted_stage: str
     stage_probabilities: Dict[str, float]
     feature_importance: Dict[str, float]
+    explainable_ai: Optional[Dict[str, Any]] = None
     recommendations: List[str]
     mri_heatmap_url: Optional[str] = ""
 
     class Config:
         from_attributes = True
+
+
+class AssessmentSubmitRequest(AssessmentCreate):
+    patient_id: int
+
+
+class AssessmentSubmitResponse(BaseModel):
+    assessment_id: int
+    patient_id: int
+    clinical_score: Dict[str, Any]
+    mri_prediction: Dict[str, Any]
+    explainable_ai: Dict[str, Any]
+
 

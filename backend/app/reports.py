@@ -84,10 +84,40 @@ def generate_report(patient, assessment) -> bytes:
         if os.path.exists(abs_heatmap_path):
             elems.append(Paragraph("Brain MRI Scan & SHAP Visual Heatmap", styles["Heading2"]))
             elems.append(Spacer(1, 0.2 * cm))
-            elems.append(RLImage(abs_heatmap_path, width=8*cm, height=8*cm))
-            elems.append(Spacer(1, 0.5 * cm))
+            elems.append(RLImage(abs_heatmap_path, width=7.5*cm, height=7.5*cm))
+            elems.append(Spacer(1, 0.4 * cm))
 
-    elems.append(Paragraph("Recommendations", styles["Heading2"]))
+    # Embed Explainable AI SHAP feature attributions if available
+    xai = getattr(assessment, "explainable_ai", None) or {}
+    contributions = xai.get("feature_contributions", [])
+    if contributions:
+        elems.append(Paragraph("Explainable AI - SHAP Feature Attributions", styles["Heading2"]))
+        elems.append(Spacer(1, 0.2 * cm))
+        xai_rows = [["Clinical Feature / Biomarker", "Value", "Attribution", "Impact"]]
+        for item in contributions[:6]:
+            xai_rows.append([
+                item.get("label", item.get("feature", "")),
+                str(item.get("value", "")),
+                str(item.get("contribution", "")),
+                str(item.get("impact", "")),
+            ])
+        xt = Table(xai_rows, colWidths=[5 * cm, 2.5 * cm, 2.5 * cm, 5 * cm])
+        xt.setStyle(TableStyle([
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ]))
+        elems.append(xt)
+        elems.append(Spacer(1, 0.4 * cm))
+
+    reasoning = xai.get("clinical_reasoning")
+    if reasoning:
+        elems.append(Paragraph("Clinical Diagnostic Reasoning", styles["Heading2"]))
+        elems.append(Spacer(1, 0.2 * cm))
+        elems.append(Paragraph(reasoning, styles["Normal"]))
+        elems.append(Spacer(1, 0.4 * cm))
+
+    elems.append(Paragraph("Recommendations & Care Plan", styles["Heading2"]))
     for r in (assessment.recommendations or []):
         elems.append(Paragraph(f"- {r}", styles["Normal"]))
     elems.append(Spacer(1, 0.5 * cm))

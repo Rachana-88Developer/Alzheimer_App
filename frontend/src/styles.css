@@ -247,3 +247,100 @@ th { background: #f8fafc; color: var(--text-muted); font-size: 12px; text-transf
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .loading-card { text-align: center; padding: 36px; color: var(--text-muted); }
 
+/* Phase 4 Explainable AI (XAI) Styles */
+.xai-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 18px 0;
+}
+.xai-kpi-card {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.xai-kpi-card .kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.xai-kpi-card .kpi-val {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 6px 0 2px;
+  color: var(--primary-dark);
+}
+.xai-kpi-card .kpi-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.xai-reasoning-box {
+  background: #eff6ff;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #1e3a8a;
+}
+
+.regional-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+.region-chip {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  color: #fff;
+}
+.region-chip .region-name {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+.region-chip .region-val {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.xai-table-wrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+.badge-risk {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge-protective {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge-neutral {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
